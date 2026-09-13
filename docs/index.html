@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Demo trực quan Chatbot Baseline và ReAct Agent cho Lab #3."
+    />
+    <title>ReAct Flight Assistant · Lab #3</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Đi tới khu vực demo</a>
+
+    <header class="hero">
+      <div class="hero__content shell">
+        <div class="brand" aria-label="Lab 3 ReAct Agent">
+          <span class="brand__mark" aria-hidden="true">✦</span>
+          <span>LAB #3 · REACT AGENT</span>
+        </div>
+        <div class="hero__grid">
+          <div>
+            <p class="eyebrow">Flight &amp; weather assistant</p>
+            <h1>Nhìn rõ cách agent<br />tự tìm dữ liệu để trả lời.</h1>
+            <p class="hero__lede">
+              So sánh chatbot cơ bản với ReAct Agent qua từng bước
+              Thought · Action · Observation.
+            </p>
+          </div>
+          <aside class="simulation-note" aria-label="Thông tin dữ liệu">
+            <span class="simulation-note__icon" aria-hidden="true">⌁</span>
+            <div>
+              <strong>Dữ liệu mô phỏng cục bộ</strong>
+              <p>Không gọi API, không phải thông tin thời gian thực.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </header>
+
+    <main id="workspace" class="shell workspace">
+      <section class="composer" aria-labelledby="demo-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Khám phá demo</p>
+            <h2 id="demo-title">Chọn tình huống hoặc nhập câu hỏi</h2>
+          </div>
+          <span class="status-pill" id="data-status">Sẵn sàng</span>
+        </div>
+
+        <div class="preset-row" aria-label="Câu hỏi mẫu">
+          <button class="preset is-active" type="button" data-preset="multi">
+            <span aria-hidden="true">✈</span> Vé &amp; thời tiết
+          </button>
+          <button class="preset" type="button" data-preset="flight">
+            <span aria-hidden="true">↗</span> Một chuyến bay
+          </button>
+          <button class="preset" type="button" data-preset="weather">
+            <span aria-hidden="true">☀</span> Thời tiết
+          </button>
+          <button class="preset" type="button" data-preset="empty">
+            <span aria-hidden="true">○</span> Không có kết quả
+          </button>
+          <button class="preset" type="button" data-preset="faq">
+            <span aria-hidden="true">?</span> Câu hỏi FAQ
+          </button>
+        </div>
+
+        <label class="input-label" for="query">Câu hỏi của khách hàng</label>
+        <textarea id="query" rows="3" spellcheck="false"></textarea>
+
+        <div class="composer__footer">
+          <label class="iteration-control" for="max-iterations">
+            <span>Giới hạn vòng lặp</span>
+            <input id="max-iterations" type="range" min="1" max="5" value="5" />
+            <output id="iteration-value" for="max-iterations">5 vòng</output>
+          </label>
+          <div class="composer__actions">
+            <button class="button button--ghost" id="reset" type="button">Khôi phục mẫu</button>
+            <button class="button button--primary" id="run-demo" type="button">
+              <span aria-hidden="true">▶</span> Chạy ReAct Agent
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="comparison" aria-label="So sánh kết quả">
+        <article class="result-card baseline-card" aria-labelledby="baseline-title">
+          <header class="result-card__header">
+            <div class="card-label">
+              <span class="avatar avatar--quiet" aria-hidden="true">C</span>
+              <div>
+                <p>Không dùng công cụ</p>
+                <h2 id="baseline-title">Chatbot Baseline</h2>
+              </div>
+            </div>
+            <span class="mini-badge mini-badge--quiet">0 tool calls</span>
+          </header>
+          <p class="answer" id="baseline-answer"></p>
+          <footer class="result-card__footer">
+            <span class="legend-dot legend-dot--muted" aria-hidden="true"></span>
+            Câu trả lời không có dữ liệu tra cứu
+          </footer>
+        </article>
+
+        <article class="result-card agent-card" aria-labelledby="agent-title">
+          <header class="result-card__header">
+            <div class="card-label">
+              <span class="avatar avatar--active" aria-hidden="true">R</span>
+              <div>
+                <p>Có tool registry</p>
+                <h2 id="agent-title">ReAct Agent</h2>
+              </div>
+            </div>
+            <span class="mini-badge mini-badge--active" id="agent-status">completed</span>
+          </header>
+          <p class="answer" id="agent-answer" aria-live="polite"></p>
+          <footer class="agent-metrics">
+            <span><strong id="tool-count">0</strong> tool calls</span>
+            <span><strong id="iteration-count">0</strong> vòng lặp</span>
+          </footer>
+        </article>
+      </section>
+
+      <section class="trace-section" aria-labelledby="trace-title">
+        <div class="section-heading trace-heading">
+          <div>
+            <p class="eyebrow">Quan sát tiến trình</p>
+            <h2 id="trace-title">ReAct trace</h2>
+          </div>
+          <p id="trace-summary" class="trace-summary"></p>
+        </div>
+        <ol class="trace-list" id="trace-list" aria-live="polite"></ol>
+      </section>
+
+      <section class="how-it-works" aria-labelledby="how-title">
+        <div>
+          <p class="eyebrow">Nguyên lý</p>
+          <h2 id="how-title">Từ câu hỏi đến câu trả lời có căn cứ</h2>
+        </div>
+        <ol>
+          <li><span>01</span><strong>Thought</strong><p>Nhận diện dữ liệu cần tra cứu.</p></li>
+          <li><span>02</span><strong>Action</strong><p>Gọi đúng tool với tham số phù hợp.</p></li>
+          <li><span>03</span><strong>Observation</strong><p>Dùng kết quả thật để tổng hợp đáp án.</p></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer shell">
+      <span>VinUni AI Training Program · Lab #3</span>
+      <a href="https://github.com/tuanank2112-crypto/Day03-LeNhuY-2A202602715" target="_blank" rel="noreferrer">Xem mã nguồn ↗</a>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

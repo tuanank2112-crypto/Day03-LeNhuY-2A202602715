@@ -2,6 +2,10 @@
 
 Lab này so sánh một chatbot baseline với ReAct Agent. Agent chạy hoàn toàn offline: chọn hành động theo quy tắc, gọi tool từ dữ liệu JSON cục bộ, rồi ghi lại Thought–Action–Observation. Không cần API key hay kết nối Internet.
 
+## Demo web
+
+Mở [ReAct Flight Assistant](https://tuanank2112-crypto.github.io/Day03-LeNhuY-2A202602715/) để trình diễn trực quan baseline, agent, tool calls và ReAct trace. Giao diện tĩnh nằm trong `../docs/`, dùng cùng bộ dữ liệu mô phỏng của lab và không gửi câu hỏi ra ngoài trình duyệt.
+
 ## Cấu trúc
 
 - `template.py`: triển khai `ChatbotBaseline`, `ReActAgent` và CLI demo.
@@ -9,6 +13,7 @@ Lab này so sánh một chatbot baseline với ReAct Agent. Agent chạy hoàn t
 - `../raw-data/flight_data.json`: dữ liệu chuyến bay mô phỏng.
 - `../raw-data/weather_data.json`: dữ liệu thời tiết và gợi ý trang phục mô phỏng.
 - `../raw-data/customer_queries.json`: năm câu hỏi mẫu để kiểm tra/demo.
+- `../docs/`: giao diện web tĩnh cho GitHub Pages.
 
 Tool đọc dữ liệu theo đường dẫn tương đối với workspace, nên luôn chạy cùng dữ liệu cục bộ. Giá vé tối đa được hiểu là `price <= max_price`.
 
