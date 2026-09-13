@@ -100,7 +100,7 @@ const traceSummary = $("#trace-summary");
 function foldText(value) {
   return String(value)
     .toLocaleLowerCase("vi")
-    .replaceAll("đ", "d")
+    .replace(/đ/g, "d")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 }
@@ -127,12 +127,12 @@ function locationOccurrences(text) {
 }
 
 function extractBudget(text) {
-  const expression = /(?<!\d)(\d{1,3}(?:[,.]\d{3})+|\d+(?:[,.]\d+)?)\s*(trieu|tr|million|k|nghin|ngan|vnd|dong)?\b/g;
+  const expression = /(^|[^\d])(\d{1,3}(?:[,.]\d{3})+|\d+(?:[,.]\d+)?)\s*(trieu|tr|million|k|nghin|ngan|vnd|dong)?\b/g;
   const values = [];
   let match;
 
   while ((match = expression.exec(text)) !== null) {
-    const [, numberText, unitValue] = match;
+    const [, prefix, numberText, unitValue] = match;
     const unit = unitValue || "";
     let value;
 
@@ -145,7 +145,7 @@ function extractBudget(text) {
     }
 
     if (Number.isFinite(value) && value > 0) {
-      values.push({ position: match.index, value: Math.trunc(value) });
+      values.push({ position: match.index + prefix.length, value: Math.trunc(value) });
     }
   }
 
@@ -425,13 +425,22 @@ function runDemo() {
   dataStatus.classList.add("is-running");
   runButton.disabled = true;
 
-  window.requestAnimationFrame(() => {
+  try {
     const result = runAgent(query, maximum);
     render(result);
     dataStatus.textContent = "Đã cập nhật";
+  } catch (error) {
+    console.error("ReAct demo failed", error);
+    agentAnswer.textContent = "Không thể chạy demo. Vui lòng tải lại trang và thử lại.";
+    agentStatus.textContent = "error";
+    agentStatus.classList.add("mini-badge--limit");
+    traceSummary.textContent = "Trình duyệt gặp lỗi khi chạy mô phỏng.";
+    traceList.replaceChildren();
+    dataStatus.textContent = "Có lỗi";
+  } finally {
     dataStatus.classList.remove("is-running");
     runButton.disabled = false;
-  });
+  }
 }
 
 document.querySelectorAll(".preset").forEach((button) => {
