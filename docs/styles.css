@@ -239,6 +239,30 @@ textarea {
 textarea:hover { border-color: #9ccdbd; }
 textarea:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgb(13 118 102 / 11%); outline: 0; }
 
+.input-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: center;
+  margin: .7rem 0 0;
+  color: var(--ink-soft);
+  font-size: .76rem;
+  line-height: 1.5;
+}
+
+.input-hint__label { font-weight: 700; }
+
+.airport-chip {
+  display: inline-flex;
+  padding: .1rem .38rem;
+  color: var(--green-dark);
+  background: var(--green-pale);
+  border-radius: 5px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
 .composer__footer {
   display: flex;
   gap: 1.4rem;
@@ -319,6 +343,23 @@ textarea:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgb(13 118 10
 .mini-badge--quiet { color: #6d7b7e; background: #e8edeb; }
 .mini-badge--active { color: var(--green-dark); background: var(--green-pale); }
 .mini-badge--limit { color: #915a06; background: #fff0cc; }
+
+.run-feedback {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 19px 0 -9px;
+  padding: .32rem .52rem;
+  overflow: hidden;
+  color: var(--green-dark);
+  background: var(--green-pale);
+  border-radius: 7px;
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .answer { flex: 1; margin: 22px 0; color: #263a40; font-size: .96rem; line-height: 1.65; }
 .result-card__footer,

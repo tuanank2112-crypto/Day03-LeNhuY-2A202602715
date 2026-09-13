@@ -62,13 +62,23 @@
           <button class="preset" type="button" data-preset="empty">
             <span aria-hidden="true">○</span> Không có kết quả
           </button>
+          <button class="preset" type="button" data-preset="unsupported">
+            <span aria-hidden="true">↯</span> HN → NY
+          </button>
           <button class="preset" type="button" data-preset="faq">
             <span aria-hidden="true">?</span> Câu hỏi FAQ
           </button>
         </div>
 
         <label class="input-label" for="query">Câu hỏi của khách hàng</label>
-        <textarea id="query" rows="3" spellcheck="false"></textarea>
+        <textarea id="query" rows="3" spellcheck="false" placeholder="Ví dụ: Tìm chuyến bay từ HN sang NY dưới 2 triệu."></textarea>
+        <p class="input-hint">
+          <span class="input-hint__label">Dữ liệu chuyến bay có sẵn:</span>
+          <span class="airport-chip">HAN</span>
+          <span class="airport-chip">SGN</span>
+          <span class="airport-chip">DAD</span>
+          <span>— các tuyến khác vẫn tạo trace và được báo rõ là ngoài dữ liệu demo.</span>
+        </p>
 
         <div class="composer__footer">
           <label class="iteration-control" for="max-iterations">
@@ -115,6 +125,7 @@
             </div>
             <span class="mini-badge mini-badge--active" id="agent-status">completed</span>
           </header>
+          <p class="run-feedback" id="run-feedback" aria-live="polite"></p>
           <p class="answer" id="agent-answer" aria-live="polite"></p>
           <footer class="agent-metrics">
             <span><strong id="tool-count">0</strong> tool calls</span>

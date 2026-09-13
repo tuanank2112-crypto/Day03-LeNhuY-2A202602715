@@ -8,6 +8,7 @@ const PRESETS = {
   flight: "Có chuyến bay nào từ HAN đi DAD giá dưới 1.5 triệu không?",
   weather: "Thời tiết ở Đà Nẵng DAD hiện tại thế nào?",
   empty: "Tìm cho tôi chuyến bay từ SGN đi HAN dưới 500k.",
+  unsupported: "Tìm chuyến bay từ HN sang NY dưới 2 triệu.",
   faq: "Chính sách đổi trả vé máy bay Vinpearl như thế nào?",
 };
 
@@ -72,6 +73,7 @@ const WEATHER = {
 
 const CITY_ALIASES = {
   han: "HAN",
+  hn: "HAN",
   "ha noi": "HAN",
   hanoi: "HAN",
   sgn: "SGN",
@@ -81,7 +83,11 @@ const CITY_ALIASES = {
   "sai gon": "SGN",
   dad: "DAD",
   "da nang": "DAD",
+  ny: "NY",
+  "new york": "NY",
 };
+
+const AVAILABLE_FLIGHT_CODES = new Set(["HAN", "SGN", "DAD"]);
 
 const $ = (selector) => document.querySelector(selector);
 const queryInput = $("#query");
@@ -179,7 +185,7 @@ function analyzeQuery(query) {
     !isFaq &&
     (["chuyen bay", "flight", "dat ve", "tim ve"].some((term) => normalized.includes(term)) ||
       /\bve\b/.test(normalized) ||
-      (codes.length >= 2 && /\b(tu|from|di|den|toi|to)\b/.test(normalized)));
+      (codes.length >= 2 && /\b(tu|from|di|den|toi|to|sang)\b|->|→/.test(normalized)));
   const origin = codes[0] || null;
   const destination = codes[1] || null;
   const weatherMarker = /thoi tiet|weather|nhiet do|temperature|mac gi|trang phuc|outfit/.exec(normalized);
@@ -229,6 +235,12 @@ function formatFlights(observation, intent) {
   if (observation?.error) return `Tôi chưa thể tra cứu chuyến bay: ${observation.error}`;
   if (!Array.isArray(observation)) return "Tôi nhận được dữ liệu chuyến bay không hợp lệ.";
   if (!observation.length) {
+    const unavailable = [intent.origin, intent.destination].filter(
+      (code) => !AVAILABLE_FLIGHT_CODES.has(code),
+    );
+    if (unavailable.length) {
+      return `Agent đã gọi tool cho tuyến ${intent.origin} → ${intent.destination}, nhưng dữ liệu mô phỏng chỉ có HAN, SGN và DAD. Chưa có dữ liệu cho ${[...new Set(unavailable)].join(", ")}.`;
+    }
     return `Không tìm thấy chuyến bay phù hợp từ ${intent.origin} đến ${intent.destination} với giá tối đa ${formatVnd(intent.maxPrice)}.`;
   }
 
@@ -403,12 +415,13 @@ function renderTrace(trace) {
   });
 }
 
-function render(result) {
+function render(result, query) {
   baselineAnswer.textContent =
     "Tôi chưa có quyền truy cập dữ liệu chuyến bay hoặc thời tiết trong chế độ chatbot cơ bản.";
   agentAnswer.textContent = result.answer;
   agentStatus.textContent = result.status;
   agentStatus.classList.toggle("mini-badge--limit", result.status !== "completed");
+  $("#run-feedback").textContent = `✓ Đã chạy: “${query}”`;
   toolCount.textContent = result.trace.filter((entry) => entry.action).length;
   iterationCount.textContent = result.iterations;
   traceSummary.textContent =
@@ -427,7 +440,7 @@ function runDemo() {
 
   try {
     const result = runAgent(query, maximum);
-    render(result);
+    render(result, query);
     dataStatus.textContent = "Đã cập nhật";
   } catch (error) {
     console.error("ReAct demo failed", error);
@@ -435,6 +448,7 @@ function runDemo() {
     agentStatus.textContent = "error";
     agentStatus.classList.add("mini-badge--limit");
     traceSummary.textContent = "Trình duyệt gặp lỗi khi chạy mô phỏng.";
+    $("#run-feedback").textContent = "Không thể hoàn tất lượt chạy này.";
     traceList.replaceChildren();
     dataStatus.textContent = "Có lỗi";
   } finally {
